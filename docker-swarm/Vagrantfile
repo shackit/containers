@@ -1,0 +1,29 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure(2) do |config|
+
+  config.vm.box = "centos7.1"
+
+	# general vagrant vm settings:
+	config.vm.provider "virtualbox" do |vb|
+		vb.gui = false
+		vb.memory = "1024"
+	end
+
+	# manager:
+  config.vm.define "manager" do |manager|
+    manager.vm.network "public_network", ip: "192.168.1.20"
+  end
+
+  # worker1:
+  config.vm.define "worker1" do |worker1|
+    worker1.vm.network "public_network", ip: "192.168.1.21"
+  end
+
+  # worker2:
+  config.vm.define "worker2" do |worker2|
+    worker2.vm.network "public_network", ip: "192.168.1.22"
+  end
+
+end
