@@ -13,7 +13,7 @@ function download() {
   sudo mv kube-apiserver kube-controller-manager kube-scheduler kubectl /usr/bin/
 }
 
-source ./common.sh
+source /vagrant/common.sh
 
 conf_dir=/var/lib/kubernetes
 

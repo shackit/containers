@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ./common.sh
+source /vagrant/common.sh
 
 # Download etcd:
 function download () {
