@@ -9,7 +9,7 @@ function download() {
 	sudo cp docker/docker* /usr/bin/
 
 	# CNI:
-	curl -L https://storage.googleapis.com/kubernetes-release/network-plugins/cni-c864f0e1ea73719b8f4582402b0847064f9883b0.tar.gz
+	curl -L https://storage.googleapis.com/kubernetes-release/network-plugins/cni-c864f0e1ea73719b8f4582402b0847064f9883b0.tar.gz -O
 	sudo tar -xvf cni-c864f0e1ea73719b8f4582402b0847064f9883b0.tar.gz -C /opt/cni/
 
 	# Kubernetes binaries:
@@ -22,11 +22,9 @@ function download() {
 	sudo mv kubectl kube-proxy kubelet /usr/bin/
 }
 
-source ./common.sh
+source /vagrant/common.sh
 
 update_host worker
-
-download
 
 conf_dir=/var/lib/kubernetes
 
@@ -34,27 +32,21 @@ sudo mkdir -p ${conf_dir}
 sudo mkdir -p /var/lib/kubelet
 sudo mkdir -p /opt/cni
 
-# Docker:
-if [ ! -f /etc/systemd/system/docker.service ]; then
-	sudo tee -a /etc/systemd/system/docker.service <<-EOF
-		[Unit]
-		Description=Docker Application Container Engine
-		Documentation=http://docs.docker.io
+download
 
-		[Service]
-		ExecStart=/usr/bin/docker daemon \
-		  --iptables=false \
-		  --ip-masq=false \
-		  --host=unix:///var/run/docker.sock \
-		  --log-level=error \
-		  --storage-driver=overlay
-		Restart=on-failure
-		RestartSec=5
+# ToDo - Apply these steps:
+# delete docker0
+#
+#sudo ip link set dev docker0 down
+#sudo ip link delete docker0
 
-		[Install]
-		WantedBy=multi-user.target"
-		EOF
-fi
+# create cbr0
+#
+#sudo ip link add name cbr0 type bridge
+#sudo ip link set dev cbr0 mtu 1460
+#sudo ip addr add 172.168.1.1/24 dev cbr0
+#sudo ip link set dev cbr0 up
+#
 
 # Kubeconfig:
 if [ ! -f /var/lib/kubelet/kubeconfig ]; then
@@ -87,10 +79,9 @@ if [ ! -f /etc/systemd/system/kubelet.service ]; then
 		ExecStart=/usr/bin/kubelet \
 		  --allow-privileged=true \
 		  --api-servers=http://192.168.1.21:8080 \
-		  --cloud-provider= \
 		  --cluster-dns=10.32.0.10 \
 		  --cluster-domain=cluster.local \
-		  --configure-cbr0=true \
+		  --configure-cbr0=false \
 		  --container-runtime=docker \
 		  --docker=unix:///var/run/docker.sock \
 		  --network-plugin=kubenet \
@@ -99,6 +90,28 @@ if [ ! -f /etc/systemd/system/kubelet.service ]; then
 		  --serialize-image-pulls=false \
 		  --v=2
 
+		Restart=on-failure
+		RestartSec=5
+
+		[Install]
+		WantedBy=multi-user.target
+		EOF
+fi
+
+# Docker:
+if [ ! -f /etc/systemd/system/docker.service ]; then
+	sudo tee -a /etc/systemd/system/docker.service <<-EOF
+		[Unit]
+		Description=Docker Application Container Engine
+		Documentation=http://docs.docker.io
+
+		[Service]
+		ExecStart=/usr/bin/docker daemon \
+		  --iptables=false \
+		  --ip-masq=false \
+		  --host=unix:///var/run/docker.sock \
+		  --log-level=error \
+		  --storage-driver=overlay
 		Restart=on-failure
 		RestartSec=5
 
@@ -125,7 +138,7 @@ if [ ! -f /etc/systemd/system/kube-proxy.service ]; then
 		RestartSec=5
 
 		[Install]
-		WantedBy=multi-user.targe
+		WantedBy=multi-user.target
 		EOF
 fi
 
