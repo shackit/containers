@@ -34,20 +34,6 @@ sudo mkdir -p /opt/cni
 
 download
 
-# ToDo - Apply these steps:
-# delete docker0
-#
-#sudo ip link set dev docker0 down
-#sudo ip link delete docker0
-
-# create cbr0
-#
-#sudo ip link add name cbr0 type bridge
-#sudo ip link set dev cbr0 mtu 1460
-#sudo ip addr add 172.168.1.1/24 dev cbr0
-#sudo ip link set dev cbr0 up
-#
-
 # Kubeconfig:
 if [ ! -f /var/lib/kubelet/kubeconfig ]; then
 	sudo tee -a /var/lib/kubelet/kubeconfig <<-EOF
@@ -147,3 +133,22 @@ for SVC in docker kubelet kube-proxy; do
 	systemctl restart $SVC
 	systemctl status $SVC
 done
+
+# delete the default docker0 if it exists
+rc=0
+ip link show docker0 >/dev/null 2>&1 || rc="$?"
+if [[ "$rc" -eq "0" ]]; then
+	sudo iptables -t nat -F
+  sudo ip link set docker0 down
+  sudo ip link delete docker0
+fi
+
+# create cbr0, if it doesn't exist already
+cbr=0
+ip link show cbr0 >/dev/null 2>&1 || cbr="$?"
+if [[ ! "$cbr" -eq "0" ]]; then
+  sudo ip link add name cbr0 type bridge
+	sudo ip link set dev cbr0 mtu 1460
+	sudo ip addr add 172.168.1.1/24 dev cbr0
+	sudo ip link set dev cbr0 up
+fi
