@@ -21,13 +21,19 @@ echo KUBE_SERVICE_ADDRESSES="--service-cluster-ip-range=172.17.0.0/16" | sudo te
 echo KUBE_ADMISSION_CONTROL="--admission_control=NamespaceLifecycle,NamespaceExists,LimitRanger,SecurityContextDeny,ResourceQuota" | sudo tee -a /etc/kubernetes/apiserver
 echo KUBE_API_ARGS="" | sudo tee -a /etc/kubernetes/apiserver
 
-etcdctl mk /atomic.io/network/config < /vagrant/flannel-config-vxlan.json
-
 # Point flannel to Master IP:
 sudo sed -i "s/FLANNEL_ETCD=\"http:\/\/127.0.0.1:2379\"/FLANNEL_ETCD=\"http:\/\/${MASTER_IP}:2379\"/g" /etc/sysconfig/flanneld
 
-for SVC in etcd kube-apiserver kube-controller-manager kube-scheduler; do
+# Set public interface for flannel - not vagrant nat iface:
+# ToDo: This may fix auto discovry of api server
+iface=$(ip a | grep ${MASTER_IP} | cut -d ' ' -f 11)
+sudo sed -i "s/#FLANNEL_OPTIONS=\"\"/FLANNEL_OPTIONS=\"--iface=${iface}\"/g" /etc/sysconfig/flanneld
+
+for SVC in etcd kube-apiserver kube-controller-manager kube-scheduler flanneld; do
   systemctl restart $SVC
   systemctl enable $SVC
   systemctl status $SVC
 done
+
+# Setup Flannel configuration in etcd:
+etcdctl set /atomic.io/network/config < /vagrant/flannel-config-vxlan.json
