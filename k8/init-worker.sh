@@ -9,7 +9,7 @@ sudo yum -y install flannel kubernetes
 # Configure the kubelet:
 echo KUBELET_ADDRESS="--address=0.0.0.0" | sudo tee /etc/kubernetes/kubelet
 echo KUBELET_PORT="--port=10250" | sudo tee -a /etc/kubernetes/kubelet
-echo KUBELET_HOSTNAME="--hostname_override=192.168.1.81" | sudo tee -a /etc/kubernetes/kubelet
+echo KUBELET_HOSTNAME="--hostname_override=${2}" | sudo tee -a /etc/kubernetes/kubelet
 echo KUBELET_API_SERVER="--api_servers=http://${MASTER_IP}:8080" | sudo tee -a /etc/kubernetes/kubelet
 echo KUBELET_ARGS="" | sudo tee -a /etc/kubernetes/kubelet
 
