@@ -4,13 +4,11 @@ Run a kubernetes setup locally with Vagrant.
 
 ## Configure DNS
 
-1. Setup the kube-system namespace
-
+Setup the kube-system namespace
 
     kubectl create namespace kube-system
 
-2. Deploy DNS
-
+Deploy DNS
 
     kubectl create -f /vagrant/pods/kube-dns-rc.yaml
 
