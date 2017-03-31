@@ -66,7 +66,7 @@ spec:
           timeoutSeconds: 5
         args:
         # command = "/kube-dns"
-        - --domain=cluster.local
+        - --domain=k8.cloudiconic.local
         - --dns-port=10053
         - --kube-master-url=http://192.168.1.80:8080
         ports:
