@@ -1,0 +1,22 @@
+nginx:
+  build: ./nginx
+  links:
+    - jenkins-master
+  ports:
+    - 80:80
+
+jenkins-master:
+  image: jenkinsci/jenkins:lts
+  privileged: true
+  links:
+    - jenkins-slave
+  ports:
+    - 8080
+    - 5000
+  environment:
+    JAVA_OPTS: -Djenkins.install.runSetupWizard=false
+
+jenkins-slave:
+  build: ./jenkins-slave
+  ports:
+    - 22
