@@ -11,7 +11,9 @@ echo KUBELET_ADDRESS="--address=0.0.0.0" | sudo tee /etc/kubernetes/kubelet
 echo KUBELET_PORT="--port=10250" | sudo tee -a /etc/kubernetes/kubelet
 echo KUBELET_HOSTNAME="--hostname_override=${2}" | sudo tee -a /etc/kubernetes/kubelet
 echo KUBELET_API_SERVER="--api_servers=http://${MASTER_IP}:8080" | sudo tee -a /etc/kubernetes/kubelet
-echo KUBELET_ARGS="" | sudo tee -a /etc/kubernetes/kubelet
+echo KUBELET_ARGS="--cluster-dns=172.16.0.10" | sudo tee -a /etc/kubernetes/kubelet
+
+#
 
 # Point flannel to Master IP:
 sudo sed -i "s/FLANNEL_ETCD_ENDPOINTS=\"http:\/\/127.0.0.1:2379\"/FLANNEL_ETCD_ENDPOINTS=\"http:\/\/${MASTER_IP}:2379\"/g" /etc/sysconfig/flanneld
