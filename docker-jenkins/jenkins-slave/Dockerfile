@@ -3,11 +3,11 @@ FROM alpine:3.3
 MAINTAINER Stephen Hackett <shackett@cloudiconic.com>
 
 # Java 7 JDK Install
-RUN apk add --update openjdk7 openssh bash git ca-certificates && rm -rf /var/cache/apk/* && \
+RUN apk add --update openjdk8 openssh bash git ca-certificates && rm -rf /var/cache/apk/* && \
   find /usr/share/ca-certificates/mozilla/ -name "*.crt" -exec keytool -import -trustcacerts \
-  -keystore /usr/lib/jvm/java-1.7-openjdk/jre/lib/security/cacerts -storepass changeit -noprompt \
+  -keystore /usr/lib/jvm/java-1.8-openjdk/jre/lib/security/cacerts -storepass changeit -noprompt \
   -file {} -alias {} \; && \
-  keytool -list -keystore /usr/lib/jvm/java-1.7-openjdk/jre/lib/security/cacerts --storepass changeit
+  keytool -list -keystore /usr/lib/jvm/java-1.8-openjdk/jre/lib/security/cacerts --storepass changeit
 
 # Maven 3 Install
 RUN wget http://mirror.catn.com/pub/apache/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz
@@ -15,7 +15,7 @@ RUN tar -zxvf apache-maven-3.3.9-bin.tar.gz
 RUN rm apache-maven-3.3.9-bin.tar.gz
 RUN mv apache-maven-3.3.9 /usr/lib/mvn
 
-ENV JAVA_HOME /usr/lib/jvm/java-1.7-openjdk
+ENV JAVA_HOME /usr/lib/jvm/java-1.8-openjdk
 ENV JAVA=$JAVA_HOME/bin
 ENV M2_HOME=/usr/lib/mvn
 ENV M2=$M2_HOME/bin
@@ -31,7 +31,6 @@ RUN mkdir /home/jenkins/.ssh
 COPY ci.pub /home/jenkins/.ssh/authorized_keys
 RUN chown -R jenkins:jenkins /home/jenkins
 RUN chmod -R 0700 /home/jenkins/.ssh
-
 
 RUN ssh-keygen -A
 
