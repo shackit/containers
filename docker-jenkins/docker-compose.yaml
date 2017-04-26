@@ -18,5 +18,18 @@ jenkins-master:
 
 jenkins-slave:
   build: ./jenkins-slave
+  links:
+    - sonarqube
   ports:
     - 22
+
+sonarqube:
+  image: sonarqube
+  ports:
+    - 9000:9000
+    - 9092:9092
+
+nexus:
+  image: sonatype/nexus:oss
+  ports:
+    - 8081:8081
