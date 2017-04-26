@@ -3,7 +3,7 @@
 
 Vagrant.configure(2) do |config|
 
-  config.vm.box = "centos7.1"
+  config.vm.box = "centos-1611-02"
 
   config.vm.provider "virtualbox" do |vb|
     vb.gui = false
